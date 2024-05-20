@@ -25,6 +25,6 @@ class UtilHelper {
 
     // Get the total hours and minutes
     double totalHours = difference.inMinutes / 60.0;
-    return totalHours.toString();
+    return totalHours.floor().toString();
   }
 }

@@ -109,6 +109,15 @@ class _AttendancePageState extends State<AttendancePage> {
     });
   }
 
+  String titleButton() {
+    if (SharedPref().clockIn.isEmpty) {
+      return 'Check In';
+    } else if (SharedPref().clockOut.isEmpty) {
+      return 'Check Out';
+    }
+    return 'Finished';
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -216,7 +225,7 @@ class _AttendancePageState extends State<AttendancePage> {
                           ),
                           GestureDetector(
                             onTap: () async {
-                              if (SharedPref().clockIn.isNotEmpty) {
+                              if (SharedPref().clockOut.isNotEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
@@ -266,18 +275,18 @@ class _AttendancePageState extends State<AttendancePage> {
                                 ),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Column(
+                              child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.fingerprint,
                                     size: 60,
                                     color: Colors.white,
                                   ),
-                                  SizedBox(height: 6),
+                                  const SizedBox(height: 6),
                                   Text(
-                                    'Check In',
-                                    style: TextStyle(
+                                    titleButton(),
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
                                     ),
