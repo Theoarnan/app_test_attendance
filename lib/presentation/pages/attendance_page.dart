@@ -216,27 +216,37 @@ class _AttendancePageState extends State<AttendancePage> {
                           ),
                           GestureDetector(
                             onTap: () async {
-                              final bool canAuthenticateWithBiometrics =
-                                  await auth.canCheckBiometrics;
-                              final bool canAuthenticate =
-                                  canAuthenticateWithBiometrics ||
-                                      await auth.isDeviceSupported();
-                              final List<BiometricType> availableBiometrics =
-                                  await auth.getAvailableBiometrics();
-                              if (canAuthenticateWithBiometrics ||
-                                  canAuthenticate ||
-                                  availableBiometrics
-                                      .contains(BiometricType.fingerprint)) {
-                                await _authenticate();
-                                if (authorized == "Authorized success") {
-                                  if (SharedPref().clockIn.isEmpty) {
-                                    SharedPref().clockIn =
-                                        DateTime.now().toString();
-                                    setState(() {});
-                                  } else if (SharedPref().clockOut.isEmpty) {
-                                    SharedPref().clockOut =
-                                        DateTime.now().toString();
-                                    setState(() {});
+                              if (SharedPref().clockIn.isNotEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Sudah melakukan presensi',
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                final bool canAuthenticateWithBiometrics =
+                                    await auth.canCheckBiometrics;
+                                final bool canAuthenticate =
+                                    canAuthenticateWithBiometrics ||
+                                        await auth.isDeviceSupported();
+                                final List<BiometricType> availableBiometrics =
+                                    await auth.getAvailableBiometrics();
+                                if (canAuthenticateWithBiometrics ||
+                                    canAuthenticate ||
+                                    availableBiometrics
+                                        .contains(BiometricType.fingerprint)) {
+                                  await _authenticate();
+                                  if (authorized == "Authorized success") {
+                                    if (SharedPref().clockIn.isEmpty) {
+                                      SharedPref().clockIn =
+                                          DateTime.now().toString();
+                                      setState(() {});
+                                    } else if (SharedPref().clockOut.isEmpty) {
+                                      SharedPref().clockOut =
+                                          DateTime.now().toString();
+                                      setState(() {});
+                                    }
                                   }
                                 }
                               }
@@ -341,38 +351,45 @@ class _AttendancePageState extends State<AttendancePage> {
                               CardInformationAttendance(
                                 title: 'Check In',
                                 icon: Icons.more_time_rounded,
-                                time: UtilHelper.formatDateTime(
-                                  UtilHelper.parseDateTime(
-                                      SharedPref().clockIn),
-                                ),
+                                time: SharedPref().clockIn.isEmpty
+                                    ? '--:--'
+                                    : UtilHelper.formatDateTime(
+                                        UtilHelper.parseDateTime(
+                                            SharedPref().clockIn),
+                                      ),
                               ),
                               CardInformationAttendance(
                                 title: 'Check Out',
                                 icon: Icons.timer_off_outlined,
-                                time: UtilHelper.formatDateTime(
-                                  UtilHelper.parseDateTime(
-                                    SharedPref().clockOut,
-                                  ),
-                                ),
+                                time: SharedPref().clockOut.isEmpty
+                                    ? '--:--'
+                                    : UtilHelper.formatDateTime(
+                                        UtilHelper.parseDateTime(
+                                          SharedPref().clockOut,
+                                        ),
+                                      ),
                               ),
                               CardInformationAttendance(
                                 title: 'Total hrs',
                                 icon: Icons.timelapse_sharp,
-                                time: UtilHelper.getTotalHours(
-                                  SharedPref().clockIn,
-                                  SharedPref().clockOut,
-                                ),
+                                time: SharedPref().clockOut.isEmpty ||
+                                        SharedPref().clockOut.isEmpty
+                                    ? '--'
+                                    : UtilHelper.getTotalHours(
+                                        SharedPref().clockIn,
+                                        SharedPref().clockOut,
+                                      ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          // TextButton(
-                          //   onPressed: () {
-                          //     SharedPref().clearCache();
-                          //     setState(() {});
-                          //   },
-                          //   child: const Text('Clear Cache'),
-                          // )
+                          TextButton(
+                            onPressed: () {
+                              SharedPref().clearCache();
+                              setState(() {});
+                            },
+                            child: const Text('Clear Cache'),
+                          )
                         ],
                       ),
                     ),
